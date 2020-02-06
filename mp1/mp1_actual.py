@@ -10,7 +10,6 @@ def print_c(str,mats):
     print()
 
 
-
 ###################################################
 # Load Data
 ###################################################
@@ -34,10 +33,16 @@ class_4[1] = data[3][1]
 data = [class_1,class_2,class_3,class_4]
 
 
-
 ###################################################
 # Calculate Covariances
 ###################################################
+
+# # From numpy
+# np_means = []
+# for c in data:
+#     np_means.append([np.mean(c[0]),np.mean(c[1])])
+# np_means = np.array(np_means)
+# print_c('Means from np:',np_means)
 
 # Manually compute mean
 means = []
@@ -52,6 +57,13 @@ for c in data:
 
 means = np.array(means)
 print_c('Means by hand:',means)
+
+# # From numpy
+# np_cov = []
+# for c in data:
+#     np_cov.append(np.cov(c[0],c[1]))
+# np_cov = np.array(np_cov)
+# print_c('Covs from np:',np_cov)
 
 # Manually calculate covariance
 covs = []
@@ -78,14 +90,12 @@ covs = np.array(covs)
 print_c('Covs by hand:',covs)
 
 
-
 ###################################################
 # Compute Eigenvectors/Eigenvalues
 ###################################################
 
 evalues  = []
 evectors = []
-evectors_norm = []
 for cov in covs:
     # Eigenvalues
     b = (-1 * cov[0][0]) - cov[1][1]
@@ -99,8 +109,6 @@ for cov in covs:
     # Eigenvector 1 - solve system
     ev01 = cov[0][1] / (l1 - cov[0][0])
     ev02 = 1
-    n_ev01 = ev01
-    n_ev02 = ev02
 
     # Normalize to eigenvalue
     c2a = evalues[-1][0]*evalues[-1][0] + evalues[-1][1]*evalues[-1][1]
@@ -110,18 +118,15 @@ for cov in covs:
     p = ca/cb
     ev01 = ev01 * p
     ev02 = ev02 * p
-
-    # Normalize to 1
-    c2 = n_ev01*n_ev01 + n_ev02*n_ev02
-    c  = pow(c2,.5)
-    n_ev01 = n_ev01 / c
-    n_ev02 = n_ev02 / c
+    # # Normalize to 1
+    # c2 = ev01*ev01 + ev02*ev02
+    # c  = pow(c2,.5)
+    # ev01 = ev01 / c
+    # ev02 = ev02 / c
 
     # Eigenvector 2 - solve system
     ev11 = cov[0][1] / (l2 - cov[0][0])
     ev12 = 1
-    n_ev11 = ev11
-    n_ev12 = ev12
 
     # Normalize to eigenvalue
     c2a = evalues[-1][0]*evalues[-1][0] + evalues[-1][1]*evalues[-1][1]
@@ -131,23 +136,28 @@ for cov in covs:
     p = ca/cb
     ev11 = ev11 * p
     ev12 = ev12 * p
-
-    # Normalize to 1
-    c2 = n_ev11*n_ev11 + n_ev12*n_ev12
-    c  = pow(c2,.5)
-    n_ev11 = n_ev11 / c
-    n_ev12 = n_ev12 / c
+    # # Normalize to 1
+    # c2 = ev11*ev11 + ev12*ev12
+    # c  = pow(c2,.5)
+    # ev11 = ev11 / c
+    # ev12 = ev12 / c
     
     evectors.append([[ev01,ev02],[ev11,ev12]])
-    evectors_norm.append([[n_ev01,n_ev02],[n_ev11,n_ev12]])
 
 evalues = np.array(evalues)
 evectors = np.array(evectors)
-evectors_norm = np.array(evectors_norm)
 print_c('Eigenvalues:',evalues)
-print_c('Eigenvectors (Normalized):',evectors_norm)
 print_c('Eigenvectors:',evectors)
 
+# actualeva = []
+# actualeve = []
+# for d in covs:
+#     eva, eve = np.linalg.eig(d)
+#     actualeva.append(eva)
+#     actualeve.append(eve)
+
+# print_c('values:',actualeva)
+# print_c('vectors:',actualeve)
 
 
 ###################################################
@@ -160,3 +170,5 @@ for i,c in enumerate(data):
     plt.quiver(means[i][0], means[i][1], evectors[i][1][0], evectors[i][1][1], angles='xy', scale_units='xy', scale=1, headlength=3, headwidth=3, headaxislength=3)
 
 plt.show()
+
+
