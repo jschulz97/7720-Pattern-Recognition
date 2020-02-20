@@ -78,7 +78,7 @@ colors = ['magenta','yellow','cyan','red']
 for i,c in enumerate(test_samples): 
     ax.scatter3D(c[0],c[1],c[2],color=colors[i])
 
-plt.show()
+#plt.show()
 
 
 ###################################################
@@ -88,7 +88,8 @@ dim = 1000
 data1 = np.random.multivariate_normal([8,2],[[4.1,0],[0,2.8]],dim).T
 data2 = np.random.multivariate_normal([2,8],[[4.1,0],[0,2.8]],dim).T
 
-plot_case_2(data1,data2)
+#plot_case_2_2d(data1,data2)
+#plot_case_2_3d(data1,data2)
 
 
 ###################################################
@@ -98,7 +99,8 @@ dim = 1000
 data1 = np.random.multivariate_normal([8,2],[[4.1,0.4],[0.4,2.8]],dim).T
 data2 = np.random.multivariate_normal([2,8],[[4.1,0.4],[0.4,2.8]],dim).T
 
-plot_case_2(data1,data2)
+#plot_case_2_2d(data1,data2)
+#plot_case_2_3d(data1,data2)
 
 
 ###################################################
@@ -108,5 +110,5 @@ dim = 1000
 data1 = np.random.multivariate_normal([8,2],[[2.1,1.5],[1.5,3.8]],dim).T
 data2 = np.random.multivariate_normal([2,8],[[4.1,0.4],[0.4,2.8]],dim).T
 
-plot_case_3(data1,data2)
+plot_case_3_2d(data1,data2,.5)
 
