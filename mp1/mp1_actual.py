@@ -37,12 +37,12 @@ data = [class_1,class_2,class_3,class_4]
 # Calculate Covariances
 ###################################################
 
-# # From numpy
-# np_means = []
-# for c in data:
-#     np_means.append([np.mean(c[0]),np.mean(c[1])])
-# np_means = np.array(np_means)
-# print_c('Means from np:',np_means)
+# From numpy
+np_means = []
+for c in data:
+    np_means.append([np.mean(c[0]),np.mean(c[1])])
+np_means = np.array(np_means)
+print_c('Means from np:',np_means)
 
 # Manually compute mean
 means = []
@@ -58,12 +58,12 @@ for c in data:
 means = np.array(means)
 print_c('Means by hand:',means)
 
-# # From numpy
-# np_cov = []
-# for c in data:
-#     np_cov.append(np.cov(c[0],c[1]))
-# np_cov = np.array(np_cov)
-# print_c('Covs from np:',np_cov)
+# From numpy
+np_cov = []
+for c in data:
+    np_cov.append(np.cov(c[0],c[1]))
+np_cov = np.array(np_cov)
+print_c('Covs from np:',np_cov)
 
 # Manually calculate covariance
 covs = []
