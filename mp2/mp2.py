@@ -71,44 +71,42 @@ colors = ['blue','green','orange']
 ax = plt.axes(projection='3d')
 for i,c in enumerate(data):    
     ax.scatter3D(c[0],c[1],c[2],color=colors[i])
-    #plt.quiver(means[i][0], means[i][1], evectors[i][0][0], evectors[i][0][1], angles='xy', scale_units='xy', scale=1, headlength=3, headwidth=3, headaxislength=3)
-    #plt.quiver(means[i][0], means[i][1], evectors[i][1][0], evectors[i][1][1], angles='xy', scale_units='xy', scale=1, headlength=3, headwidth=3, headaxislength=3)
 
 colors = ['magenta','yellow','cyan','red']
 for i,c in enumerate(test_samples): 
     ax.scatter3D(c[0],c[1],c[2],color=colors[i])
 
-#plt.show()
+plt.show()
 
 
 ###################################################
 # Question 2b&c
 ###################################################
 dim = 1000
-data1 = np.random.multivariate_normal([8,2],[[4.1,0],[0,2.8]],dim).T
-data2 = np.random.multivariate_normal([2,8],[[4.1,0],[0,2.8]],dim).T
+data1 = generate_dist([8,2],[[4.1,0],[0,2.8]],dim)
+data2 = generate_dist([2,8],[[4.1,0],[0,2.8]],dim)
 
-#plot_case_2_2d(data1,data2)
-#plot_case_2_3d(data1,data2)
+plot_case_2_2d(data1,data2)
+plot_case_2_3d(data1,data2)
 
 
 ###################################################
 # Question 2d
 ###################################################
 dim = 1000
-data1 = np.random.multivariate_normal([8,2],[[4.1,0.4],[0.4,2.8]],dim).T
-data2 = np.random.multivariate_normal([2,8],[[4.1,0.4],[0.4,2.8]],dim).T
+data1 = generate_dist([8,2],[[4.1,0.4],[0.4,2.8]],dim).T
+data2 = generate_dist([2,8],[[4.1,0.4],[0.4,2.8]],dim).T
 
-#plot_case_2_2d(data1,data2)
-#plot_case_2_3d(data1,data2)
+plot_case_2_2d(data1,data2)
+plot_case_2_3d(data1,data2)
 
 
 ###################################################
 # Question 2e
 ###################################################
 dim = 1000
-data1 = np.random.multivariate_normal([8,2],[[2.1,1.5],[1.5,3.8]],dim).T
-data2 = np.random.multivariate_normal([2,8],[[4.1,0.4],[0.4,2.8]],dim).T
+data1 = generate_dist([8,2],[[2.1,1.5],[1.5,3.8]],dim).T
+data2 = generate_dist([2,8],[[4.1,0.4],[0.4,2.8]],dim).T
 
 plot_case_3_2d(data1,data2,.5)
-
+plot_case_3_3d(data1,data2,.5)

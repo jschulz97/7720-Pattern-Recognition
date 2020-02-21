@@ -2,6 +2,7 @@ import numpy as np
 from scipy.io import loadmat
 from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d
+from scipy.optimize import minimize
 
 
 ###################################################
@@ -93,42 +94,21 @@ def g_1b(x,data,prior):
 
 # Generate random samples using whitening transform
 def generate_dist(u,cov,n):
-    m1 = [8,2]
-    cv1 = [[4.1,0],[0,2.8]]
-    num_samples = 1000
 
-    data1 = np.random.multivariate_normal([0,0],[[1,0],[0,1]],num_samples)
-    data1 = np.reshape(data1,(2,num_samples))
+    #data1_actual = np.random.multivariate_normal([8,2],[[4.1,0],[0,2.8]],n).T
+    data1 = np.random.multivariate_normal([0,0],[[1,0],[0,1]],n).T
 
-    evals = evalues(cv1)
+    evals, evects = np.linalg.eig(cov)
     evals_mat = np.array([[evals[0],0.0],[0.0,evals[1]]])
-    evects = evectors(cv1,evals)
-
     Y = np.dot(evects.T , data1)
     evals_mat = np.sqrt(evals_mat)
-
     W = np.dot(evals_mat, Y)
-
     new = W
-
-    new = new + np.reshape(m1,(2,1))
-
+    new = new + np.reshape(u,(2,1))
     m1 = mean(new)
-    cv1 = cov(new,m1)
+    cv1 = np.cov(new)
 
-    print_c('new mean',m1)
-    print_c('new cov',cv1)
-
-
-    eva, eve = np.linalg.eig(cv1)
-    evals = evalues(cv1)
-    print_c('evals by hand:',evals)
-    print_c('evals by np:',eva)
-
-    print_c('evects by hand:',evectors(cv1,evals))
-    print_c('evects by np:',eve)
-
-    print(mean(data1))
+    return new
 
 
 ###################################################
@@ -260,64 +240,68 @@ def plot_case_2_3d(data1,data2):
 def plot_case_3_2d(data1,data2,prior1):
     x_1 = np.arange(-5, 15, .5)
     pdf1,pdf2 = get_pdfs(data1,data2,x_1,x_1)
+    x_1 = np.arange(-5, 15, 2)
 
     dp_1 = []
     # Plot Decision boundaries
     for d1_1 in x_1:
-        temp = []
         for d1_2 in x_1:
-            if(case3([d1_1,d1_2],data1,prior1) < .01 and case3([d1_1,d1_2],data2,1-prior1) < .01):
-                temp.append([d1_1,d1_2])
-        if(temp != []):
-            dp_1.append(temp)
+            val = np.abs(case3([d1_1,d1_2],data1,prior1) - case3([d1_1,d1_2],data2,1-prior1))
+            if(val < .5):
+                dp_1.append([d1_1,d1_2])
     dp_1 = np.array(dp_1)
-    print_c('case 3 decision bound:',dp_1)
-    #for d2_1, d2_2 in zip(data2[0],data2[1]):
 
     ax = plt.axes()
     ax.set_xlim(-5,15)
     ax.set_ylim(-5,15)
     ax.scatter(data1[0],data1[1],color='blue')
     ax.scatter(data2[0],data2[1],color='red')
-    ax.plot(dp_1[:,0],dp_1[:,1],.1,color='black')
+    ax.plot(dp_1[:,0],dp_1[:,1],color='black')
     plt.show()
 
 
 # Plot PDFs and Decision bound for case 3
-def plot_case_3_3d(data1,data2):
+def plot_case_3_3d(data1,data2,prior1):
     x_1 = np.arange(-5, 15, .5)
+    y_1 = np.arange(-5, 15, .5)
+    x_2 = x_1
+    y_2 = y_1
 
-    pdf1,pdf2 = get_pdfs(data1,data2,x_1,x_1)
+    pdf1,pdf2 = get_pdfs(data1,data2,x_1,y_1)
 
-    x_1 = np.outer(x_1, np.ones(40))
-    x_2 = np.outer(x_2, np.ones(40))
-    y_1 = np.outer(np.ones(40),y_1)
-    y_2 = np.outer(np.ones(40),y_2)
+    dp_1 = []
+    # Plot Decision boundaries
+    for d1_1 in x_1:
+        for d1_2 in x_1:
+            val = np.abs(case3([d1_1,d1_2],data1,prior1) - case3([d1_1,d1_2],data2,1-prior1))
+            if(val < .5):
+                dp_1.append([d1_1,d1_2])
+    dp_1 = np.array(dp_1)
 
-
-    # Plot hyperplane
-    hp_y = []
-    hp_x = np.arange(-5, 15, .5)
-    for xi in hp_x:
-        hp_y.append(np.sum(case3(xi,[data1,data2],.5)))
-
-    hp_y = np.array(hp_y)
-    hp_y[hp_y > .0001] = np.NaN
-
-    c = cov(data1)
+    x_1 = np.outer(x_1, np.ones(len(x_1)))
+    x_2 = np.outer(x_2, np.ones(len(x_2)))
+    y_1 = np.outer(np.ones(len(y_1)),y_1)
+    y_2 = np.outer(np.ones(len(y_2)),y_2)
 
     # Plot post
-    p_y = []
+    p_y = np.arange(-5, 15, 1)
     p_x = np.arange(-5, 15, 1)
+    p_z1, p_z2 = [], []
     p_w1 = .8 
+    p_w2 = .2
     for xi in p_x:
-        temp = []
-        for yi in p_x:
-            temp.append(pdf([xi,yi],data1,c) * p_w1)
-        p_y.append(temp)
-    p_y = np.array(p_y)
+        temp1,temp2 = [],[]
+        for yi in p_y:
+            temp1.append(post([xi,yi], data1, p_w1, [data1,data2], [p_w1,p_w2]))
+            temp2.append(post([xi,yi], data2, p_w2, [data1,data2], [p_w1,p_w2]))
+        p_z1.append(temp1)
+        p_z2.append(temp2)
+    p_z1 = np.array(p_z1)
+    p_z2 = np.array(p_z2)
+    p_x = np.outer(p_x, np.ones(len(p_x)))
+    p_y = np.outer(np.ones(len(p_y)),p_y)
 
-
+    # Plot PDFs and Decision Bound
     ax = plt.axes(projection='3d')
     pdf1 = np.ma.array(pdf1, mask=np.isnan(pdf1))
     pdf2 = np.ma.array(pdf2, mask=np.isnan(pdf2))
@@ -325,7 +309,13 @@ def plot_case_3_3d(data1,data2):
     ax.set_zlim(0.0, .05)
     ax.plot_surface(x_1,y_1,pdf1,cmap='viridis',linewidth=0,antialiased=False,edgecolor='none',vmin=np.nanmin(pdf1), vmax=np.nanmax(pdf1))
     ax.plot_surface(x_2,y_2,pdf2,cmap='magma',linewidth=0,antialiased=False,edgecolor='none',vmin=np.nanmin(pdf2), vmax=np.nanmax(pdf2))
-    ax.scatter3D(hp_x,hp_y,.01)
+    ax.scatter3D(dp_1[:,0],dp_1[:,1],.01)
+    plt.show()
+    
+    # Plot posterior
+    ax = plt.axes(projection='3d')
+    ax.plot_surface(p_x,p_y,p_z1,cmap='viridis',linewidth=0,antialiased=False,edgecolor='none')
+    ax.plot_surface(p_x,p_y,p_z2,cmap='magma',linewidth=0,antialiased=False,edgecolor='none')
     plt.show()
 
 
@@ -363,11 +353,6 @@ def get_pdfs(data1,data2,x,y):
 
     pdf1 = []
     pdf2 = []
-    # for x1,x2 in zip(x_1,y_1):
-    #     pdf1.append(pdf([x1,x2],data1,cov1))
-
-    # for x1,x2 in zip(x_2,y_2):
-    #     pdf2.append(pdf([x1,x2],data2,cov2))
 
     for x1 in x_1:
         temp = []
