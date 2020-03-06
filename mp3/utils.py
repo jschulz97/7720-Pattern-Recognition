@@ -158,12 +158,6 @@ class CPT():
         self.Pc = np.reshape(np.array(self.Pc),(3,2))
         self.Pd = np.reshape(np.array(self.Pd),(2,2))
 
-        # self.limits = dict()
-        # self.limits['a'] = (0,4)
-        # self.limits['b'] = (0,2)
-        # self.limits['x'] = (0,2,4,2)
-        # self.limits['c'] = 
-
         # Build label -> var label,num
         self.fish_dict = dict()
         labels = ['a','b','x','c','d']
@@ -179,32 +173,6 @@ class CPT():
                 self.fish_dict[a]          = dict()
                 self.fish_dict[a]['label'] = lab
                 self.fish_dict[a]['index'] = i+1
-
-
-    def __call__(self,label):
-        if(label == 'a'):
-            return self.Pa
-        elif(label == 'b'):
-            return self.Pb
-        elif(label == 'x'):
-            return self.Px
-        elif(label == 'c'):
-            return self.Pc
-        elif(label == 'd'):
-            return self.Pd
-    
-
-    def set(self,label,value):
-        if(label == 'a'):
-            self.Pa = value
-        elif(label == 'b'):
-            self.Pb = value
-        elif(label == 'x'):
-            self.Px = value
-        elif(label == 'c'):
-            self.Pc = value
-        elif(label == 'd'):
-            self.Pd = value
 
 
     def lookup(self,key):
