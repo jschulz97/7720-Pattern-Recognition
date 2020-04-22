@@ -100,7 +100,7 @@ print_c('Confusion Matrix:\nScore: '+str(cm_score),cm)
 # plt.show()
 
 ## Polar transform
-data_polar = []
+data_polar_test = []
 for d in data_test:
     rhos = []
     phis = []
@@ -111,13 +111,26 @@ for d in data_test:
     cls = []
     cls.append(np.array(rhos))
     cls.append(np.array(phis))
-    data_polar.append(np.array(cls))
+    data_polar_test.append(np.array(cls))
+
+data_polar_train = []
+for d in data_train:
+    rhos = []
+    phis = []
+    for i in range(len(d[0])):
+        rho, phi = cart2pol(d[0][i],d[1][i])
+        rhos.append(rho)
+        phis.append(phi)
+    cls = []
+    cls.append(np.array(rhos))
+    cls.append(np.array(phis))
+    data_polar_train.append(np.array(cls))
 
 # ## Plot Polar
 # fig, ax = plt.subplots()
 # plt.suptitle('Polar plot')
 # colors = ['red','blue','green']
-# for d,c in zip(data_polar,colors):    
+# for d,c in zip(data_polar_test,colors):    
 #     ax.scatter(d[0],d[1],color=c)
 # plt.show()
 
@@ -125,11 +138,11 @@ for d in data_test:
 # Classify using r only
 ## Compute Scores using g_1b
 test_scores = []
-for k in range(len(data_polar)):
-    for i in range(len(data_polar[k][0])):
+for k in range(len(data_polar_test)):
+    for i in range(len(data_polar_test[k][0])):
         gi = []
-        for j in range(len(data_train)):
-            gi.append(g_1b(np.array(data_polar[k])[0,i],data_train[j][0],.33))
+        for j in range(len(data_polar_train)):
+            gi.append(g_1b(np.array(data_polar_test[k])[0,i],data_polar_train[j][0],.33))
         test_scores.append(np.array(gi))
 
 test_scores = np.array(test_scores)

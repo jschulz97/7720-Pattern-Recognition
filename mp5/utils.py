@@ -48,8 +48,8 @@ def cov(data):
     return np.array(covs)
 
 
-# Mahalanobis Distance
-def mahala(x1, x2, cov):
+# Mahalanobis Distance - multivariate
+def mahala_mv(x1, x2, cov):
     temp = np.dot((x1 - x2).T, np.linalg.inv(cov))
     return np.dot(temp, (x1 - x2))
 
@@ -59,11 +59,17 @@ def g_1b_mv(x,data,prior):
     d  = len(data)
     mn = mean_mv(data)
     cv = cov(data)
-    md = mahala(x,mn,cv)
+    md = mahala_mv(x,mn,cv)
 
     gi = (-1 * .5 * md) + (-1 * d/2 * np.log(2*np.pi)) + (-.5 * np.log(np.linalg.det(cv))) + np.log(prior)
 
     return gi
+
+
+# Mahalanobis Distance
+def mahala(x1, x2, var):
+    temp = np.sqrt(np.power(x1,2) - np.power(x2,2)) * (1 / var)
+    return temp
 
 
 # Question 1b discriminate fx from MP2
@@ -73,7 +79,7 @@ def g_1b(x,data,prior):
     va = var(data)
     md = mahala(x,mn,va)
 
-    gi = (-1 * .5 * md) + (-1 * d/2 * np.log(2*np.pi)) + (-.5 * np.log(np.linalg.det(va))) + np.log(prior)
+    gi = (-1 * .5 * md) + (-1 * d/2 * np.log(2*np.pi)) + (-.5 * np.log(va)) + np.log(prior)
 
     return gi
 
