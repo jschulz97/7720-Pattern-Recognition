@@ -68,7 +68,7 @@ def g_1b_mv(x,data,prior):
 
 # Mahalanobis Distance
 def mahala(x1, x2, var):
-    temp = np.sqrt(np.power(x1,2) - np.power(x2,2)) * (1 / var)
+    temp = np.sqrt(np.power(x1 - x2,2)) * (1 / var)
     return temp
 
 

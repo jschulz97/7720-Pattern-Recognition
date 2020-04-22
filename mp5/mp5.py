@@ -146,7 +146,7 @@ for k in range(len(data_polar_test)):
         test_scores.append(np.array(gi))
 
 test_scores = np.array(test_scores)
-#print_c('Scores for test samples:',test_scores)
+# print_c('Scores for test samples:',test_scores)
 
 ## Classify
 predictions = []
@@ -154,12 +154,12 @@ for ts in test_scores:
     predictions.append(classifier(ts))
 predictions = np.array(predictions)
 
-#print('Classification:',predictions)
+# print('Classification:',predictions)
 
 ## Build confusion matrix
 ### Build labels
 labels = []
-for i,d in enumerate(data_test):
+for i,d in enumerate(data_polar_test):
     for x in d[0]:
         labels.append(i)
 labels = np.array(labels)
