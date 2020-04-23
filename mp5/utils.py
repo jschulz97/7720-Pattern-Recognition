@@ -68,7 +68,8 @@ def g_1b_mv(x,data,prior):
 
 # Mahalanobis Distance
 def mahala(x1, x2, var):
-    temp = np.sqrt(np.power(x1 - x2,2)) * (1 / var)
+    # temp = np.sqrt(np.power(x1 - x2,2) * (1 / np.power(var,4)))
+    temp = np.sqrt(np.power(x1 - x2, 2))
     return temp
 
 
@@ -78,8 +79,17 @@ def g_1b(x,data,prior):
     mn = mean(data)
     va = var(data)
     md = mahala(x,mn,va)
+    
+    gi = (-1 * .5 * md) + (-.5 * np.log(va)) + np.log(prior)
 
-    gi = (-1 * .5 * md) + (-1 * d/2 * np.log(2*np.pi)) + (-.5 * np.log(va)) + np.log(prior)
+    return gi
+
+
+# Question 1b discriminate fx from MP2 - BPE
+def g_1b_bpe(x,mn,va,prior):
+    md = mahala(x,mn,va)
+    
+    gi = (-1 * .5 * md) + (-.5 * np.log(va)) + np.log(prior)
 
     return gi
 
