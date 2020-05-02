@@ -2,14 +2,15 @@ import utils
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA as pca_cheat
 
 
-class PCA_1:
+class PCA:
     def __init__(self,):
         _=0
 
     def __call__(self, data, proj_dim):
+        print('\nUsing PCA Manual...\n')
         if(data.shape[1] <= proj_dim):
             print('Invalid dimensions for projection.')
             exit()
@@ -55,14 +56,15 @@ class PCA_1:
         # Transform
         transform = np.dot(data_T.T, eve_s.T)
 
-        print(transform.shape)
         
+        # # 3d Scatter
         # fig = go.Figure(data=[
         #     go.Scatter3d(x=data.T[0], y=data.T[1], z=data.T[2], mode='markers', marker=dict(size=3)),
         #     go.Scatter3d(x=transform.T[0], y=transform.T[1], z=transform.T[2], mode='markers', marker=dict(size=3)),
         #     ])
         # fig.show()
 
+        # # Subplots
         # fig = make_subplots(rows=1,cols=2)
 
         # for i in range(0,300,100):
@@ -77,23 +79,37 @@ class PCA_1:
         #         row=1, col=2
         #     )
 
-
-        fig = go.Figure()
-        for i in range(0,300,100):
-            fig.add_trace(
-                go.Scatter(x=transform.T[0][i:i+100], y=transform.T[1][i:i+100], mode='markers'))
+        # # Manual
+        # fig = go.Figure()
+        # for i in range(0,300,100):
+        #     fig.add_trace(
+        #         go.Scatter(x=transform.T[0][i:i+100], y=transform.T[1][i:i+100], mode='markers'))
         
-        fig.show()
+        # fig.show()
 
-        pca1 = PCA(n_components=2)
-        X_new = pca1.fit_transform(data)
 
-        fig = go.Figure()
-        for i in range(0,300,100):
-            fig.add_trace(
-                go.Scatter(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], mode='markers'))
+    def cheat(self, data, proj_dim):
+        # Cheat
+        print('\nUsing PCA Cheat...\n')
+        pca = pca_cheat(n_components=proj_dim)
+        X_new = pca.fit_transform(data)
+
+        if(proj_dim == 2):
+            fig = go.Figure()
+            for i in range(0,300,100):
+                fig.add_trace(
+                    go.Scatter(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], mode='markers')
+                )
+            
+            fig.show()
         
-        fig.show()
+        elif(proj_dim == 3):
+            # 3d Scatter
+            fig = go.Figure()
+            for i in range(0,300,100):
+                fig.add_trace(
+                    go.Scatter3d(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], z=X_new.T[2][i:i+100], mode='markers'), marker=dict(size=3)
+                )
 
-        # asdf
+            fig.show()
 
