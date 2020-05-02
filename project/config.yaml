@@ -1,0 +1,24 @@
+#####################################################
+# Get features
+#####################################################
+get_pytorch_features: False
+data_dir:
+  - '/home/md0/storage/Code/7720/project/data/tigers/'
+  - '/home/md0/storage/Code/7720/project/data/cheetahs/'
+  - '/home/md0/storage/Code/7720/project/data/monkeys/'
+features_dir:
+  - '/home/md0/storage/Code/7720/project/data/tiger_features'
+  - '/home/md0/storage/Code/7720/project/data/cheetah_features'
+  - '/home/md0/storage/Code/7720/project/data/monkey_features'
+
+  
+#####################################################
+# Dimensional Reduction
+#####################################################
+# 'pca', 'lda', 'qda'
+dim_red_choice: 'pca'
+
+
+#####################################################
+# 
+#####################################################
