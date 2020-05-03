@@ -91,8 +91,15 @@ class PCA:
     def cheat(self, data, proj_dim):
         # Cheat
         print('\nUsing PCA Cheat...\n')
-        pca = pca_cheat(n_components=proj_dim)
-        X_new = pca.fit_transform(data)
+
+        # Smush features together
+        features_ravel = np.empty((1,2048))
+        for feat in data:
+            features_ravel = np.append(features_ravel, feat, axis=0)
+        features_ravel = features_ravel[1:]
+
+        pca = pca_cheat(n_components=proj_dim,svd_solver='full')
+        X_new = pca.fit_transform(features_ravel)
 
         if(proj_dim == 2):
             fig = go.Figure()
@@ -101,7 +108,7 @@ class PCA:
                     go.Scatter(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], mode='markers')
                 )
             
-            fig.show()
+            #fig.show()
         
         elif(proj_dim == 3):
             # 3d Scatter
@@ -112,4 +119,6 @@ class PCA:
                 )
 
             fig.show()
+        
+        return X_new
 

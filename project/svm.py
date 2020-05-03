@@ -1,3 +1,73 @@
+import numpy as np
+from sklearn.utils import shuffle
+
+
 class SVM:
-    def __init__(self,):
-        _=0
+    def __init__(self, learning_rate=.000001, reg_strength=10000):
+        self.learning_rate = learning_rate
+        self.reg_strength = reg_strength
+
+
+    def learn(self, X, y):
+        # train the model
+        print("Training started...")
+        X.insert(loc=len(X.columns), column='intercept', value=1)
+        W = self.sgd(X, y)
+        print("Training finished.")
+        print("weights are: {}".format(W))
+        return W
+
+
+    def cost(self, w, x, y):
+        # calculate hinge loss
+        N = X.shape[0]
+        distances = 1 - Y * (np.dot(X, W))
+        distances[distances < 0] = 0  # equivalent to max(0, distance)
+        hinge_loss = reg_strength * (np.sum(distances) / N)
+        
+        # calculate cost
+        cost = 1 / 2 * np.dot(W, W) + hinge_loss
+        return cost
+
+
+    def calculate_cost_gradient(self, W, X_batch, Y_batch):
+        # if only one example is passed (eg. in case of SGD)
+        if type(Y_batch) == np.float64:
+            Y_batch = np.array([Y_batch])
+            X_batch = np.array([X_batch])
+        print(Y_batch.shape,X_batch.shape,W.shape)
+        distance = 1 - (Y_batch * np.dot(X_batch, W))
+        dw = np.zeros(len(W))
+        for ind, d in enumerate(distance):
+            if max(0, d) == 0:
+                di = W
+            else:
+                di = W - (reg_strength * Y_batch[ind] * X_batch[ind])
+            dw += di
+        dw = dw/len(Y_batch)  # average
+        return dw
+
+
+    def sgd(self, features, outputs):
+        max_epochs = 5000
+        weights = np.zeros(features.shape[1])
+        nth = 0
+        prev_cost = float("inf")
+        cost_threshold = 0.01  # in percent
+        # stochastic gradient descent
+        for epoch in range(1, max_epochs):
+            # shuffle to prevent repeating update cycles
+            X, Y = shuffle(features, outputs)
+            for ind, x in enumerate(X):
+                ascent = self.calculate_cost_gradient(weights, x, Y[ind])
+                weights = weights - (self.learning_rate * ascent)
+            # convergence check on 2^nth epoch
+            if epoch == 2 ** nth or epoch == max_epochs - 1:
+                cost = self.cost(weights, features, outputs)
+                print("Epoch is:{} and Cost is: {}".format(epoch, cost))
+                # stoppage criterion
+                if abs(prev_cost - cost) < cost_threshold * prev_cost:
+                    return weights
+                prev_cost = cost
+                nth += 1
+        return weights

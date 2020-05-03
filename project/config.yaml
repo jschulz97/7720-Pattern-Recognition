@@ -16,7 +16,8 @@ features_dir:
 # Dimensional Reduction
 #####################################################
 # 'pca', 'lda', 'qda'
-dim_red_choice: 'lda'
+dim_red_choice: 'pca'
+projection_dim: 2
 
 
 #####################################################

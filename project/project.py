@@ -54,19 +54,7 @@ else:
     print('\nError: Select a valid dimensional reduction!')
     exit()
 
-# LDA
-
-# QDA
-
-# Smush features together
-features_ravel = np.empty((1,2048))
-for feat in features:
-    features_ravel = np.append(features_ravel, feat, axis=0)
-features_ravel = features_ravel[1:]
-
-dim_red.cheat(features_ravel, 2)
-
-
+data_reduced = dim_red.cheat(features, params['projection_dim'])
 
 
 #####################################################
@@ -83,7 +71,13 @@ dim_red.cheat(features_ravel, 2)
 #####################################################
 # Classify
 #####################################################
+# Create labels
+y = np.array([0] * 100)
+y = np.append(y, [1] * 100)
+y = np.append(y, [2] * 100)
 
+classifier = svm.SVM()
+W = classifier.learn(data_reduced, y) 
 
 
 
