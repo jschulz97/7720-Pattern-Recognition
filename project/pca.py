@@ -10,7 +10,7 @@ class PCA:
         _=0
 
     def __call__(self, data, proj_dim):
-        print('\nUsing PCA Manual...\n')
+        print('Using PCA Manual')
         if(data.shape[1] <= proj_dim):
             print('Invalid dimensions for projection.')
             exit()
@@ -90,7 +90,7 @@ class PCA:
 
     def cheat(self, data, proj_dim):
         # Cheat
-        print('\nUsing PCA Cheat...\n')
+        print('Using PCA Cheat')
 
         # Smush features together
         features_ravel = np.empty((1,2048))
@@ -100,25 +100,6 @@ class PCA:
 
         pca = pca_cheat(n_components=proj_dim,svd_solver='full')
         X_new = pca.fit_transform(features_ravel)
-
-        if(proj_dim == 2):
-            fig = go.Figure()
-            for i in range(0,300,100):
-                fig.add_trace(
-                    go.Scatter(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], mode='markers')
-                )
-            
-            #fig.show()
-        
-        elif(proj_dim == 3):
-            # 3d Scatter
-            fig = go.Figure()
-            for i in range(0,300,100):
-                fig.add_trace(
-                    go.Scatter3d(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], z=X_new.T[2][i:i+100], mode='markers'), marker=dict(size=3)
-                )
-
-            fig.show()
         
         return X_new
 

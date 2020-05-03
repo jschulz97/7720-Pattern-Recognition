@@ -10,7 +10,7 @@ class LDA:
         _=0
 
     def __call__(self, data, proj_dim):
-        print('\nUsing LDA Manual...\n')
+        print('Using LDA Manual')
 
         # means = []
         # for d in data:
@@ -64,7 +64,7 @@ class LDA:
 
     def cheat(self, data, proj_dim):
         # Cheat
-        print('\nUsing LDA Cheat...\n')
+        print('Using LDA Cheat')
 
         # Smush features together
         features_ravel = np.empty((1,2048))

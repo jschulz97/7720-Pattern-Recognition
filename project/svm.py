@@ -11,19 +11,19 @@ class SVM:
     def learn(self, X, y):
         # train the model
         print("Training started...")
-        X.insert(loc=len(X.columns), column='intercept', value=1)
+        X = np.append(X, np.ones((1,X.shape[1])), axis=0)
         W = self.sgd(X, y)
         print("Training finished.")
         print("weights are: {}".format(W))
         return W
 
 
-    def cost(self, w, x, y):
+    def cost(self, W, X, Y):
         # calculate hinge loss
         N = X.shape[0]
         distances = 1 - Y * (np.dot(X, W))
         distances[distances < 0] = 0  # equivalent to max(0, distance)
-        hinge_loss = reg_strength * (np.sum(distances) / N)
+        hinge_loss = self.reg_strength * (np.sum(distances) / N)
         
         # calculate cost
         cost = 1 / 2 * np.dot(W, W) + hinge_loss
@@ -32,17 +32,16 @@ class SVM:
 
     def calculate_cost_gradient(self, W, X_batch, Y_batch):
         # if only one example is passed (eg. in case of SGD)
-        if type(Y_batch) == np.float64:
+        if type(Y_batch) != np.ndarray:
             Y_batch = np.array([Y_batch])
             X_batch = np.array([X_batch])
-        print(Y_batch.shape,X_batch.shape,W.shape)
         distance = 1 - (Y_batch * np.dot(X_batch, W))
         dw = np.zeros(len(W))
         for ind, d in enumerate(distance):
             if max(0, d) == 0:
                 di = W
             else:
-                di = W - (reg_strength * Y_batch[ind] * X_batch[ind])
+                di = W - (self.reg_strength * Y_batch[ind] * X_batch[ind])
             dw += di
         dw = dw/len(Y_batch)  # average
         return dw

@@ -5,11 +5,11 @@ get_pytorch_features: False
 data_dir:
   - 'Z:/storage/Code/7720/project/data/tigers/'
   - 'Z:/storage/Code/7720/project/data/cheetahs/'
-  - 'Z:/storage/Code/7720/project/data/monkeys/'
+  # - 'Z:/storage/Code/7720/project/data/monkeys/'
 features_dir:
   - 'Z:/storage/Code/7720/project/data/tiger_features'
   - 'Z:/storage/Code/7720/project/data/cheetah_features'
-  - 'Z:/storage/Code/7720/project/data/monkey_features'
+  # - 'Z:/storage/Code/7720/project/data/monkey_features'
 
   
 #####################################################
@@ -17,7 +17,8 @@ features_dir:
 #####################################################
 # 'pca', 'lda', 'qda'
 dim_red_choice: 'pca'
-projection_dim: 2
+projection_dim: 3
+display_projection: True
 
 
 #####################################################
