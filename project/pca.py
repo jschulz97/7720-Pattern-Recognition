@@ -88,7 +88,7 @@ class PCA:
         # fig.show()
 
 
-    def cheat(self, data, proj_dim):
+    def cheat(self, data, proj_dim, labels=None):
         # Cheat
         print('Using PCA Cheat')
 

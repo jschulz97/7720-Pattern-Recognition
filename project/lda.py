@@ -62,7 +62,7 @@ class LDA:
         # W= eig_pairs[0][1].reshape(19,1)
 
 
-    def cheat(self, data, proj_dim):
+    def cheat(self, data, proj_dim, labels=None):
         # Cheat
         print('Using LDA Cheat')
 
@@ -72,31 +72,11 @@ class LDA:
             features_ravel = np.append(features_ravel, feat, axis=0)
         features_ravel = features_ravel[1:]
 
-        # Create labels
-        y = np.array([0] * 100)
-        y = np.append(y, [1] * 100)
-        y = np.append(y, [2] * 100)
-
-        lda = lda_cheat(n_components=proj_dim,solver='svd')
-        X_new = lda.fit_transform(features_ravel, y)
-
-        if(proj_dim == 2):
-            fig = go.Figure()
-            for i in range(0,300,100):
-                fig.add_trace(
-                    go.Scatter(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], mode='markers')
-                )
-            
-            fig.show()
-        
-        elif(proj_dim == 3):
-            # 3d Scatter
-            fig = go.Figure()
-            for i in range(0,300,100):
-                fig.add_trace(
-                    go.Scatter3d(x=X_new.T[0][i:i+100], y=X_new.T[1][i:i+100], z=X_new.T[2][i:i+100], mode='markers'), marker=dict(size=3)
-                )
-
-            fig.show()
+        self.lda = lda_cheat(n_components=proj_dim, solver='svd')
+        X_new = self.lda.fit_transform(features_ravel, labels)
         
         return X_new
+
+    
+    def predict(self, data):
+        return self.lda.predict(data)

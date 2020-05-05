@@ -6,12 +6,15 @@ class SVM:
     def __init__(self, learning_rate=.000001, reg_strength=10000):
         self.learning_rate = learning_rate
         self.reg_strength = reg_strength
+        self.learned_weights = []
+        self.learned_weights_flag = False
 
 
     def learn(self, X, y):
         # train the model
         print("Training started...")
         X = np.append(X, np.ones((1,X.shape[1])), axis=0)
+        y = np.append(y, np.array([1]))
         W = self.sgd(X, y)
         print("Training finished.")
         print("weights are: {}".format(W))
@@ -63,10 +66,36 @@ class SVM:
             # convergence check on 2^nth epoch
             if epoch == 2 ** nth or epoch == max_epochs - 1:
                 cost = self.cost(weights, features, outputs)
-                print("Epoch is:{} and Cost is: {}".format(epoch, cost))
+                print('Epoch:', str(epoch).rjust(4), '| Cost:', cost)
                 # stoppage criterion
                 if abs(prev_cost - cost) < cost_threshold * prev_cost:
+                    self.learned_weights = weights
+                    self.learned_weights_flag = True
                     return weights
                 prev_cost = cost
                 nth += 1
+        self.learned_weights = weights
+        self.learned_weights_flag = True
         return weights
+
+
+    def predict(self, data, labels):
+        if(not self.learned_weights_flag):
+            print('\nError! Fit classifier with learn() before calling predict()\n')
+            return
+        
+        data_new = data * self.learned_weights
+
+        score = 0.0
+        for x,y in zip(data_new, labels):
+            if(np.dot(self.learned_weights.T , x) > 0.0):
+                pred = 1.0
+            elif(np.dot(self.learned_weights.T , x) < 0.0):
+                pred = -1.0
+            else: 
+                pred = 0.0
+            
+            if(pred == y):
+                score += 1.0
+
+        print('\nPrediction Score:', str(int(score))+'/'+str(len(labels)), '=', score/len(labels))

@@ -1,5 +1,6 @@
 import numpy as np
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 import yaml
 
 import utils
@@ -30,14 +31,46 @@ print('Configuration loaded!')
 #####################################################
 print('\nAttempt: Loading features...')
 features = []
+test_features = []
 
-if(params['get_pytorch_features']):
+if(params['get_pytorch_features_train']):
     for src, dest in zip(params['data_dir'], params['features_dir']):
         features.append(utils.get_features(src, dest))
 
 else:    
     for src, dest in zip(params['data_dir'], params['features_dir']):
         features.append(np.load(dest+'.npy'))
+
+# Create labels
+if('cheetah' in params['features_dir'][0] and 'monkey' in params['features_dir'][1]):
+    print('FLIPPED TRAIN LABELS')
+    y_train = np.array([1] * 100)
+    y_train = np.append(y_train, [-1] * 100)
+else:
+    y_train = np.array([-1] * 100)
+    y_train = np.append(y_train, [1] * 100)
+
+# Testing data
+if(params['resub']):
+    test_features = features
+    test_labels   = y_train
+else:
+    if(params['get_pytorch_features_test']):
+        for src, dest in zip(params['test_data_dir'], params['test_features_dir']):
+            pre_test_features.append(utils.get_features(src, dest))
+
+    else:    
+        for src, dest in zip(params['test_data_dir'], params['test_features_dir']):
+            pre_test_features.append(np.load(dest+'.npy'))
+
+    # Create labels
+    if('cheetah' in params['test_features_dir'][0] and 'monkey' in params['test_features_dir'][1]):
+        print('FLIPPED TEST LABELS')
+        y_test = np.array([1] * 100)
+        y_test = np.append(y_test, [-1] * 100)
+    else:
+        y_test = np.array([-1] * 100)
+        y_test = np.append(y_test, [1] * 100)
 
 print('Features loaded!')
 
@@ -46,25 +79,33 @@ print('Features loaded!')
 # Dimensional Reduction
 #####################################################
 print('\nAttempt: Dimensional Reduction...')
+reduce = True
 if(params['dim_red_choice'] == 'pca'):
     dim_red = pca.PCA()
 elif(params['dim_red_choice'] == 'lda'):
     dim_red = lda.LDA()
 elif(params['dim_red_choice'] == 'qda'):
     dim_red = qda.QDA()
+elif(params['dim_red_choice'] == 'selection'):
+    data_reduced = utils.feature_selection(features, params['feature_selections'], params['projection_dim'])
+    reduce = False
+elif(params['dim_red_choice'] == 'none'):
+    data_reduced = utils.no_dimensional_reduction(features)
+    reduce = False
 else:
     print('\nError: Select a valid dimensional reduction!')
     exit()
 
-data_reduced = dim_red.cheat(features, params['projection_dim'])
+if(reduce):
+    data_reduced = dim_red.cheat(features, params['projection_dim'], labels=y_train)
 
-print('Finished!')
+print('Dimensional Reduction finished!')
 
 
 #####################################################
 # Display Reductions
 #####################################################
-if(params['display_projection']):
+if(params['display_projection'] and params['dim_red_choice'] != 'none'):
     if(params['projection_dim'] == 2):
         fig = go.Figure()
         for i in range(0,200,100):
@@ -88,51 +129,62 @@ if(params['display_projection']):
 # Classify
 #####################################################
 print('\nAttempt: Classification...')
-# Create labels
-y = np.array([-1] * 100)
-y = np.append(y, [1] * 101)
 
+# Init classifier
 classifier = svm.SVM()
-W = classifier.learn(data_reduced, y) 
-# W = np.array([ 2.10110659,-1.08379617])
 
-svm_trans = data_reduced * W
+# Fit to training data
+W = classifier.learn(data_reduced, y_train)
 
+# Classify on resub
+classifier.predict(data_reduced, y_train)
 
+# Classify on test data
+print(dim_red.predict(features[1]))
 
-print('Finished!')
+print('Classification finished!')
 
 
 #####################################################
 # Results
 #####################################################
-if(params['display_projection']):
-    # Calculate line coords
-    m = W[0] / W[1]
-    if(m == abs(m)):
-        x0 = min(svm_trans[:,0])
-        x1 = max(svm_trans[:,0])
-        while(x0 * m < min(svm_trans[:,1])):
-            x0 += 1.0
-        while(x1 * m > max(svm_trans[:,1])):
-            x1 -= 1.0
-        x0 -= 1.0
-        x1 += 1.0
-    else:
-        x0 = min(svm_trans[:,0])
-        x1 = max(svm_trans[:,0])
-        while(x1 * m < min(svm_trans[:,1])):
-            x1 -= 1.0
-        while(x0 * m > max(svm_trans[:,1])):
-            x0 += 1.0
-        x0 -= 1.0
-        x1 += 1.0
+if(params['display_projection'] and params['dim_red_choice'] != 'none'):
+    svm_trans = data_reduced * W
 
-    y0 = x0 * m
-    y1 = x1 * m
+    if(params['projection_dim'] == 1):
+        hist_data = []
+        for i in range(0,200,100):
+            hist_data.append(svm_trans[i:i+100, 0])
+        group_labels = ['-1', '1']
 
-    if(params['projection_dim'] == 2):
-        
+        # Create distplot
+        fig = ff.create_distplot(hist_data, group_labels, bin_size=.2)
+        fig.show()
+
+    elif(params['projection_dim'] == 2):
+        # Calculate line coords
+        m = W[0] / W[1]
+        if(m == abs(m)):
+            x0 = min(svm_trans[:,0])
+            x1 = max(svm_trans[:,0])
+            while(x0 * m < min(svm_trans[:,1])):
+                x0 += 1.0
+            while(x1 * m > max(svm_trans[:,1])):
+                x1 -= 1.0
+            x0 -= 1.0
+            x1 += 1.0
+        else:
+            x0 = min(svm_trans[:,0])
+            x1 = max(svm_trans[:,0])
+            while(x1 * m < min(svm_trans[:,1])):
+                x1 -= 1.0
+            while(x0 * m > max(svm_trans[:,1])):
+                x0 += 1.0
+            x0 -= 1.0
+            x1 += 1.0
+
+        y0 = x0 * m
+        y1 = x1 * m
 
         fig = go.Figure()
         for i in range(0,300,100):
@@ -147,7 +199,7 @@ if(params['display_projection']):
                 x1=x1,
                 y1=y1,
                 line=dict(
-                    color="RoyalBlue",
+                    color="Green",
                     width=3
                 )
             )
@@ -156,6 +208,30 @@ if(params['display_projection']):
         fig.show()
 
     elif(params['projection_dim'] == 3):
+        # Calculate line coords
+        m = W[0] / W[1]
+        if(m == abs(m)):
+            x0 = min(svm_trans[:,0])
+            x1 = max(svm_trans[:,0])
+            while(x0 * m < min(svm_trans[:,1])):
+                x0 += 1.0
+            while(x1 * m > max(svm_trans[:,1])):
+                x1 -= 1.0
+            x0 -= 1.0
+            x1 += 1.0
+        else:
+            x0 = min(svm_trans[:,0])
+            x1 = max(svm_trans[:,0])
+            while(x1 * m < min(svm_trans[:,1])):
+                x1 -= 1.0
+            while(x0 * m > max(svm_trans[:,1])):
+                x0 += 1.0
+            x0 -= 1.0
+            x1 += 1.0
+
+        y0 = x0 * m
+        y1 = x1 * m
+
         mesh_x, mesh_y = np.meshgrid(np.arange(x0, x1, 1.0), np.arange(y0, y1, 1.0))
         mesh_z = np.array(mesh_x.shape)
         print(mesh_x.shape, mesh_y.shape)
@@ -169,22 +245,6 @@ if(params['display_projection']):
                 go.Scatter3d(x=svm_trans.T[0][i:i+100], y=svm_trans.T[1][i:i+100], z=svm_trans.T[2][i:i+100], mode='markers', marker=dict(size=3))
             )
         
-        fig.add_shape(
-        # filled Rectangle
-            type="rect",
-            x0=-10,
-            y0=-10,
-            z0=-10,
-            x1=10,
-            y1=10,
-            z1=10,
-            line=dict(
-                color="RoyalBlue",
-                width=2,
-            ),
-            fillcolor="LightSkyBlue",
-        )
-
         fig.show()
 
 

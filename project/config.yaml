@@ -1,26 +1,49 @@
 #####################################################
 # Get features
 #####################################################
-get_pytorch_features: False
+get_pytorch_features_train: False
 data_dir:
-  - 'Z:/storage/Code/7720/project/data/tigers/'
+  # - 'Z:/storage/Code/7720/project/data/tigers/'
   - 'Z:/storage/Code/7720/project/data/cheetahs/'
-  # - 'Z:/storage/Code/7720/project/data/monkeys/'
+  - 'Z:/storage/Code/7720/project/data/monkeys/'
 features_dir:
-  - 'Z:/storage/Code/7720/project/data/tiger_features'
+  # - 'Z:/storage/Code/7720/project/data/tiger_features'
   - 'Z:/storage/Code/7720/project/data/cheetah_features'
-  # - 'Z:/storage/Code/7720/project/data/monkey_features'
+  - 'Z:/storage/Code/7720/project/data/monkey_features'
+
+get_pytorch_features_test: False
+resub: True
+test_data_dir:
+  - 'Z:/storage/Code/7720/project/data/tigers_test/'
+  - 'Z:/storage/Code/7720/project/data/cheetahs_test/'
+  - 'Z:/storage/Code/7720/project/data/monkeys_test/'
+test_features_dir:
+  - 'Z:/storage/Code/7720/project/data/tiger_features_test'
+  - 'Z:/storage/Code/7720/project/data/cheetah_features_test'
+  - 'Z:/storage/Code/7720/project/data/monkey_features_test'
 
   
 #####################################################
 # Dimensional Reduction
 #####################################################
-# 'pca', 'lda', 'qda'
-dim_red_choice: 'pca'
-projection_dim: 3
+# 'pca', 'lda', 'qda', 'selection', 'none'
+dim_red_choice: 'lda'
+feature_selections:
+  - 10
+  - 55
+  - 184
+  - 273
+  - 713
+  - 1024
+  - 1431
+  - 1694
+  - 1802
+  - 2043
+projection_dim: 1
 display_projection: True
 
 
 #####################################################
-# 
+# Training/Testing
 #####################################################
+

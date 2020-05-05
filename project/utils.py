@@ -80,3 +80,42 @@ def print_c(str,mats):
     for c in mats:
         print(c)
     print()
+
+    
+def feature_selection(data, features, proj_dim):
+    print('Using Feature Selection')
+    # Smush features together
+    features_ravel = np.empty((1,2048))
+    for feat in data:
+        features_ravel = np.append(features_ravel, feat, axis=0)
+    features_ravel = features_ravel[1:]
+
+    new_data = np.empty((features_ravel.shape[0], 1))
+    for feat,i in zip(features,range(proj_dim)):
+        new_data = np.append(new_data, features_ravel[:,feat].reshape((features_ravel.shape[0], 1)), axis=1)
+    
+    new_data = new_data[:,1:].T
+
+    # Center Data
+    for i in range(new_data.shape[0]):
+        m = mean(new_data[i])
+        new_data[i] -= m
+    
+    return new_data.T
+
+
+def no_dimensional_reduction(data):
+    # Unravel
+    features_ravel = np.empty((1,2048))
+    for feat in data:
+        features_ravel = np.append(features_ravel, feat, axis=0)
+    features_ravel = features_ravel[1:]
+
+    features_ravel = features_ravel[:,1:].T
+
+    # Center Data
+    for i in range(features_ravel.shape[0]):
+        m = mean(features_ravel[i])
+        features_ravel[i] -= m
+
+    return features_ravel.T
