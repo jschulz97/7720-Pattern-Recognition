@@ -5,7 +5,6 @@ import yaml
 
 import utils
 import lda
-# import qda
 import pca
 import svm
 
@@ -57,20 +56,20 @@ if(params['resub']):
 else:
     if(params['get_pytorch_features_test']):
         for src, dest in zip(params['test_data_dir'], params['test_features_dir']):
-            pre_test_features.append(utils.get_features(src, dest))
+            test_features.append(utils.get_features(src, dest))
 
     else:    
         for src, dest in zip(params['test_data_dir'], params['test_features_dir']):
-            pre_test_features.append(np.load(dest+'.npy'))
+            test_features.append(np.load(dest+'.npy'))
 
     # Create labels
     if('cheetah' in params['test_features_dir'][0] and 'monkey' in params['test_features_dir'][1]):
         print('FLIPPED TEST LABELS')
-        y_test = np.array([1] * 100)
-        y_test = np.append(y_test, [-1] * 100)
+        y_test = np.array([1] * 50)
+        y_test = np.append(y_test, [-1] * 50)
     else:
-        y_test = np.array([-1] * 100)
-        y_test = np.append(y_test, [1] * 100)
+        y_test = np.array([-1] * 50)
+        y_test = np.append(y_test, [1] * 50)
 
 print('Features loaded!')
 
@@ -136,11 +135,27 @@ classifier = svm.SVM()
 # Fit to training data
 W = classifier.learn(data_reduced, y_train)
 
-# Classify on resub
-classifier.predict(data_reduced, y_train)
+if(params['resub']):
+    # Classify on resub
+    classifier.predict(data_reduced, y_train)
+else:
+    # Classify on test data
 
-# Classify on test data
-print(dim_red.predict(features[1]))
+    # Smush features together
+    features_ravel = np.empty((1,2048))
+    for feat in test_features:
+        features_ravel = np.append(features_ravel, feat, axis=0)
+    features_ravel = features_ravel[1:]
+
+    preds = dim_red.predict(features_ravel)
+
+    score = 0.0
+    for p, l in zip(preds, y_test):
+        if(p == l):
+            score += 1.0
+    
+    print('\nPrediction Score:', str(int(score))+'/'+str(len(y_test)), '=', score/len(y_test))
+
 
 print('Classification finished!')
 
